@@ -25,6 +25,7 @@ const statusSchema = z.enum(STATUSES);
 const sortSchema = z.enum(SORT_FIELDS);
 const orderSchema = z.enum(ORDERS);
 // NUL e demais controles (exceto tab/quebras de linha) truncam ou distorcem o padrão do LIKE.
+// biome-ignore lint/suspicious/noControlCharactersInRegex: rejeitar caracteres de controle é o objetivo desta regex
 const CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
 
 const list = (values: readonly string[]) => values.join(', ');
