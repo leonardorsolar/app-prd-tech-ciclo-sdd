@@ -160,3 +160,20 @@ describe('parseListUsersQuery', () => {
     expect(detailsOf({ order: '' }).map((d) => d.param)).toEqual(['order']);
   });
 });
+
+describe('parseListUsersQuery — revisão 1', () => {
+  it('UT-046 (error): rejeita q com NUL ou caractere de controle', () => {
+    for (const q of ['\u0000', 'ab\u0001cd', 'a\u007Fb']) {
+      expect(detailsOf({ q }).map((d) => d.param)).toEqual(['q']);
+    }
+  });
+
+  it('UT-047 (boundary): o limite de q conta caracteres Unicode, não unidades UTF-16', () => {
+    expect(parseListUsersQuery({ q: '😀'.repeat(60) }).q).toHaveLength(120);
+    expect(detailsOf({ q: '😀'.repeat(101) }).map((d) => d.param)).toEqual(['q']);
+  });
+
+  it('UT-048 (error): parâmetro de nome vazio gera rótulo legível', () => {
+    expect(detailsOf({ '': '1' })).toEqual([{ param: '(nome vazio)', message: 'parâmetro desconhecido' }]);
+  });
+});

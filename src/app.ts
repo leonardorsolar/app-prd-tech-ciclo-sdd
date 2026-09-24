@@ -5,6 +5,8 @@ import { createUsersRouter } from './modules/users/users.routes';
 import type { UsersService } from './modules/users/users.service';
 import { errorHandler, notFound } from './shared/middlewares';
 
+const KNOWN_QUERY_KEYS = new Set(['page', 'limit', 'q', 'status', 'sort', 'order']);
+
 export interface AppDeps {
   usersService: UsersService;
   logger?: Logger;
@@ -23,11 +25,14 @@ export function createApp({ usersService, logger = pino() }: AppDeps): Express {
         // Não registra valores de query (podem conter termos de busca com dados pessoais).
         req: (req) => {
           const [path = '', query = ''] = String(req.url).split('?');
+          const keys = [...new URLSearchParams(query).keys()];
           return {
             id: req.id,
             method: req.method,
             path,
-            queryKeys: [...new URLSearchParams(query).keys()],
+            // Só nomes conhecidos; o resto vira contagem para não registrar texto arbitrário do cliente.
+            queryKeys: keys.filter((key) => KNOWN_QUERY_KEYS.has(key)),
+            unknownQueryKeys: keys.filter((key) => !KNOWN_QUERY_KEYS.has(key)).length,
           };
         },
       },

@@ -24,11 +24,8 @@ const limitSchema = intInRange(MAX_LIMIT);
 const statusSchema = z.enum(STATUSES);
 const sortSchema = z.enum(SORT_FIELDS);
 const orderSchema = z.enum(ORDERS);
-const qSchema = z
-  .string()
-  .trim()
-  .max(MAX_Q_LENGTH)
-  .refine((value) => !value.includes('�'));
+// NUL e demais controles (exceto tab/quebras de linha) truncam ou distorcem o padrão do LIKE.
+const CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
 
 const list = (values: readonly string[]) => values.join(', ');
 
@@ -38,7 +35,7 @@ export function parseListUsersQuery(query: Record<string, unknown>): ListUsersPa
 
   for (const key of Object.keys(query)) {
     if (!(KNOWN_PARAMS as readonly string[]).includes(key)) {
-      fail(key, 'parâmetro desconhecido');
+      fail(key === '' ? '(nome vazio)' : key, 'parâmetro desconhecido');
     }
   }
 
@@ -71,10 +68,12 @@ export function parseListUsersQuery(query: Record<string, unknown>): ListUsersPa
   let q: string | undefined;
   if (raw.q !== undefined) {
     const trimmed = raw.q.trim();
-    if (trimmed.length > MAX_Q_LENGTH) {
+    if ([...trimmed].length > MAX_Q_LENGTH) {
       fail('q', `deve ter no máximo ${MAX_Q_LENGTH} caracteres`);
     } else if (raw.q.includes('�')) {
       fail('q', 'contém encoding inválido');
+    } else if (CONTROL_CHARS.test(trimmed)) {
+      fail('q', 'contém caracteres de controle');
     } else if (trimmed !== '') {
       q = trimmed;
     }

@@ -264,6 +264,16 @@ describe('GET /users — validação e erros', () => {
   });
 });
 
+describe('GET /users — revisão 1', () => {
+  it('IT-033: q com NUL retorna 400 e não vira busca vazia', async () => {
+    const { db, http } = buildApp();
+    seedUsers(db, 3);
+    const res = await http.get('/users?q=%00');
+    expect(res.status).toBe(400);
+    expect(res.body.error.details[0].param).toBe('q');
+  });
+});
+
 describe('GET /users — concorrência, repetição e escala', () => {
   it('IT-026: inserção entre chamadas mantém total coerente em cada resposta', async () => {
     const { db, http } = buildApp();

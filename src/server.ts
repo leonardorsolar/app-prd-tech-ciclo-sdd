@@ -14,12 +14,19 @@ const server = app.listen(config.port, () => {
   logger.info({ port: config.port, databasePath: config.databasePath }, 'servidor iniciado');
 });
 
+let shuttingDown = false;
+
 function shutdown(signal: string): void {
+  if (shuttingDown) return;
+  shuttingDown = true;
   logger.info({ signal }, 'encerrando');
+  // Garante o encerramento mesmo com conexões keep-alive presas.
+  setTimeout(() => process.exit(1), 10_000).unref();
   server.close(() => {
     db.close();
     process.exit(0);
   });
+  server.closeIdleConnections();
 }
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));
