@@ -1,0 +1,3 @@
+# Arquivo .gitignore
+.claude/
+.agents/
