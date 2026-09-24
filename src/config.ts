@@ -8,8 +8,10 @@ export function loadConfig(env: NodeJS.ProcessEnv): AppConfig {
   if (!/^\d+$/.test(rawPort) || Number(rawPort) > 65535) {
     throw new Error(`PORT inválida: "${rawPort}"`);
   }
-  return {
-    port: Number(rawPort),
-    databasePath: env.DATABASE_PATH ?? './data/app.db',
-  };
+  // Vazio viraria banco temporario descartavel no better-sqlite3; falha em vez de perder dados.
+  const databasePath = env.DATABASE_PATH ?? './data/app.db';
+  if (databasePath.trim() === '') {
+    throw new Error('DATABASE_PATH inválido: valor vazio');
+  }
+  return { port: Number(rawPort), databasePath };
 }

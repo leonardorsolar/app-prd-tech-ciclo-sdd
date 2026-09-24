@@ -310,11 +310,19 @@ describe('GET /users — concorrência, repetição e escala', () => {
         makeUser({ nome: `user${i}`, email: `user${i}@x.com` }),
       ),
     );
+    // Teto folgado (varredura linear esperada); estourar indica hora de avaliar FTS5 (ADR-004).
+    const MAX_MS = 2000;
+    const t0 = performance.now();
     const res = await http.get('/users');
+    const listMs = performance.now() - t0;
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(20);
     expect(res.body.meta.total).toBe(100_000);
+    const t1 = performance.now();
     const search = await http.get('/users?q=user99999&limit=100');
+    const searchMs = performance.now() - t1;
+    expect(listMs).toBeLessThan(MAX_MS);
+    expect(searchMs).toBeLessThan(MAX_MS);
     expect(search.body.data.length).toBeLessThanOrEqual(100);
     expect(search.body.data).toHaveLength(1);
   });

@@ -9,4 +9,8 @@ describe('loadConfig', () => {
   it('UT-045 (error): lança erro para PORT inválida', () => {
     expect(() => loadConfig({ PORT: 'abc' })).toThrow(/PORT/);
   });
+
+  it('UT-045 (error): lança erro para DATABASE_PATH vazio', () => {
+    expect(() => loadConfig({ DATABASE_PATH: '' })).toThrow(/DATABASE_PATH/);
+  });
 });
