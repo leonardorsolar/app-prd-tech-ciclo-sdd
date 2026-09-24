@@ -1,0 +1,35 @@
+{
+  "name": "listar-usuarios",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend somente leitura com a rota GET /users",
+  "main": "dist/server.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.build.json && node -e \"require('fs').cpSync('src/db/schema.sql','dist/db/schema.sql')\"",
+    "start": "node dist/server.js",
+    "seed": "tsx scripts/seed.ts",
+    "test": "vitest run --exclude 'test/e2e/**'",
+    "test:e2e": "vitest run test/e2e"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "express": "^5.2.1",
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.2",
+    "@types/supertest": "^7.2.1",
+    "supertest": "^7.3.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.1"
+  }
+}
